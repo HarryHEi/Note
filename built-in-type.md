@@ -196,4 +196,20 @@ Tips：
 3. 为了保证与不支持切片的序列类型的一致性，保留了`clear`和`copy`操作。
 
 ## Lists
-列表是可变序列类型，常常用于保存多个同类型元素。
+列表是可变序列类型，一般用于保存多个同类型元素。
+
+### `sort(self, key=None, reverse=False)`
+将数组排序，需要元素之间支持`<`比较。
+
+`key`参数指定一个函数提取用于比较的元素，每个元素只计算一次，默认直接使用元素值比较。比如`key=str.lower`，用于不区分大小写排序。
+
+`reverse`如果设置为`True`，反向排序。
+
+## Tuples
+Tuples是一个不可变序列，一般用于保存各种不同类型数据。
+
+## range()
+`class range(stop)`
+`class range(start, stop[,step])`
+
+# 文本序列类型
