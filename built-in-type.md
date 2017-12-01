@@ -135,7 +135,7 @@ StopIteration
 
 # 序列类型
 ## 一般序列类型
-有三个基本的序列类型：`list`、`tuple`、`range`。
+有三个基本的序列类型：`list`、`tuple`、`range`。两个特殊的一般序列`str`、`bytes`。
 
 Tips：
 
@@ -213,3 +213,151 @@ Tuples是一个不可变序列，一般用于保存各种不同类型数据。
 `class range(start, stop[,step])`
 
 # 文本序列类型
+Python中把文本数据处理为`str`对象或者字符串，字符串是unicode编码的不可变序列（字面值常量）。
+
+三引号字符串一般跨越多行用连续的空格隔开。
+
+字符串字面值是单个表达式，空格隔开的多个字符串会被处理为一个字符串字面值
+```
+>>> ("hello " "world") == "hello world"
+True
+```
+为了向前兼容，允许添加`u`前缀，虽然没有什么影响，但是不能和`r`前缀组合。
+
+`class str(object='')`
+`class str(object=b'', encoding='utf-8', errors='strict')`
+
+如果没有指定`encoding`和`errors`参数`str(object)`返回`object.__str__()`的值。
+如果没有定义`__str__()`方法，会返回`repr(object)`，返回对象的基本描述。
+
+如果指定了`encoding`或者`errors`，`object`必须是`bytes-like object`(bytes, bytearray, array.array)。如果`object`是`bytes`，相当于`bytes.decode(encoding, errors)`。
+
+如果传入`bytes` 参数，没有指定`encoding`和`errors`参数，会进入第一种情况，返回对象的基本描述。
+
+## 字符串方法
+字符串支持所有一般序列的操作。
+
+字符串支持两种风格构造格式，一种是用`str.format`，另外一种是 C `printf`风格。
+
+### `str.capitalize()`
+返回字符串的拷贝，第一个字母大写，其余小写。
+
+### `str.casefold()`
+返回字符串小写的拷贝，且支持其他语言。
+
+### `str.center(width[, fillchar])`
+返回固定长度字符串，该字符串放在中间，其余默认补空格，或者通过参数`fillchar`指定。
+```
+>>> 'hello'.center(20)
+'       hello        '
+```
+### `str.count(sub[, start[, end]]`
+返回`sub`指定的子串出现的次数。
+
+### `str.encode(encoding='utf-8', errors='strict')`
+返回字符串编码后的版本。`errors`参数指定编码错误后的错误处理方式，`strict`表示抛出`UnicodeError`，其他还有`ignore`，`replace`，`xmlcharrefreplace`，`backslashreplace`或者使用`codecs.register_error()`注册的处理方式。
+
+### `str.endswith(suffix[, start[, end]])`
+如果以`suffix`指定的字符串结尾，则返回true，否则返回false。`suffix`也可以是个元组，用于查找。
+
+### `str.find(sub[, start[, end]])`
+返回能够查找到`sub`指定子串的最小索引。
+
+### `str.format(*args, **kwargs)`
+构造一个字符串。
+格式说明：
+```
+'{' [field_name] ["!" conversion] [":" format_spec] '}'
+```
+其中`field_name`结构为：`arg_name("." attribute_name | "[" element_index "]")`
+
+`arg_name`是一个数字或者关键字，如果是一个数字，表示的是一个位置。如果是一个关键字，可以通过`format`字典参数指定关键字。
+
+`.attribute`对参数进行点操作。
+
+`!conversion`指定在构造之前进行过一个格式操作。
+`!s`调用`str()`，`!r`调用`repr()`，`!a`调用`ascii()`
+
+`format_spec`指定值的显示方式，格式入下：
+```
+[[fill] align] [sign] [#] [0] [width] [grouping_option] [.precision] [type]
+```
+`fill`指定填充字符，可以是任意字符。
+
+`align`指定对其方式，其中`<`(左对齐)，`>`右对齐，`=`在`+`或`-`符号之后数字符号之前填充，`^`居中。
+
+`sign`指定符号显示方式，其中`+`正数也会显示`+`符号，`-`只有负数会显示`-`符号，正数不显示，空格同`-`。
+
+`#`会使得辅助符号显示，只`int`、`float`、`complex`、`decimal.Decimal`有效。对于整数类型，会添加比如`0b`、`0o`和`0c`符号。对于其他几个，会添加一个小数点，即使并没有小数部分。
+```
+>>> '{:#}'.format(1+2j)
+'(1.+2.j)'
+```
+如果添加了`0`标识，并且通过`width`参数指定了长度，数值前的空缺位自动补0。
+```
+>>> '{:#010}'.format(123.321)
+'000123.321'
+```
+`grouping_option`如果指定为`,`，整数位每千位会用逗号隔开。如果指定为`_`，则用下划线隔开。
+```
+>>> '{:,}'.format(12313123123.3421323)
+'12,313,123,123.342133'
+>>> '{:_}'.format(1233213213)
+'1_233_213_213'
+```
+`precision`指定小数点后显示多少位。
+
+`type`如下：
+
+对于整数类型：
+
++ `b`，二进制格式；
++ `c`，整型转换成unicode字符；
++ `d`，十进制整数；
++ `o`，八进制；
++ `x`，十六进制小写；
++ `X`，十六进制大写；
++ `n`，和`d`一样。
+
+对于浮点类型
+
++ `e`，指数格式；
++ `E`，同`e`，使用大写的E；
++ `f`，小数固定6位，不足补0；
++ `F`，同上，但是`nan` 转为`NAN`，`inf`转为`INF`；
++ `g`，固定显示数的数量，数量由`precise`指定。`'{a:.2g}'.format(a=123.32132) ==> '1.2e+02'`；
++ `G`，同上，使用大写的E；
++ `n`，同`g`；
++ `%`，乘以100，再相当于加上`f`，以百分号结尾。`'{a:%}'.format(a=0.676766) ==> '67.676600%'`
+
+### `str.format_map(mapping)`
+和`str.format(**mapping)`类似，直接传入一个字典参数。
+```
+>>> d=dict(a=1)
+>>> '{a}'.format_map(d)
+'1'
+>>> '{a}'.format(d)
+Traceback (most recent call last):
+  File "<input>", line 1, in <module>
+KeyError: 'a'
+```
+### `str.index(sub[, start[, end]])`
+和`find()`类似，但是如果没有找到会抛出`ValueError`遗异常。
+
+### `str.isalnum()`
+全部都是字符或者数字，否则返回false。
+
+### `str.isalpha()`
+全是字母，否则返回false。
+
+### `str.isdecimal()`
+全是全角数字或者Unicode数字，否则返回false。
+
+### `str.isdigit()`
+全是Unicode数字、bytes数字、全角数字或者罗马数字，否则返回false。
+
+### `str.isnumeric()`
+全是Unicode数字、全角数字、罗马数字或者汉字数字。
+
+### `str.isidentifier()`
+如果是合法的标识符，返回true。
