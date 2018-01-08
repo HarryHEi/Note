@@ -216,7 +216,7 @@ NameError: name 'name' is not defined
 >>> exec(s,scope)
 test
 ```
-如果也指定了`local`参数
+如果也指定了`local`参数，则`global`和`local`分别作为全局和局部环境。
 ```
 >>> global_scope = {}
 >>> local_scope = {}
@@ -228,4 +228,78 @@ test
 1
 ```
 
+语法错误通过异常报告。
+
 返回值为None。
+
+# `eval(expression, globals=None, locals=None)`
+
+参数和`exec()`类似，不同的是，返回值是表达式的值。
+
+# `compile(source, filename, mode, flags=0, dont_inherit=False, optimize=-1)`
+
+将源代码构造为代码或者抽象代码树对象。
+
+代码对象可以由`exec()`和`eval()`函数执行。
+
+源代码可以是普通字符串、byte字符串或AST(抽象代码树)。
+
+`filename`参数指定代码文件，如果不从文件读，可以传递一个容易识别的值，比如空字符串。
+
+`mode`参数指定编码的类型。`exec`顺序执行操作，`eval`单一表达式，`signal`处理单一交互。
+
+如果指定为`exec`并且传递给`eval()`函数，将返回None。
+
+# `getattr(object, name[, default])`
+
+返回对象的属性，`name`是一个字符串。如果name参数是对象的某个属性，返回该值，如果属性不存在，且指定了`default`参数，返回该值，则否则抛出`AttributeError`。
+`getattr(t, 'test')`等同于`t.test`
+
+# `setattr(object, name, value)`
+
+设置对象属性，`name`参数可以是对象的属性或者是一个新属性。
+`setattr(t, 'test', 123)`等同于`t.test = 123`
+
+# `delattr(object, name)`
+
+删除对象属性，如果属性不存在，抛出`AttributeError`。
+`delattr(t, 'test')`等同于`del t.test`
+
+# `dir([object])`
+
+不加参数的情况下，返回当前环境的所有名称。
+有一个参数时，返回该对象的所有属性。
+
+如果参数对象含有`__dir__()`方法，该方法会被调用，比且必须返回一个属性组成的数组。
+
+默认`dir()`这对不同类型的参数有不同的行为。
+如果`object`是一个模块对象，将列出模块属性名称。
+如果`object`是类型或者类对象，将列出他们的以及基类的属性名称。
+其他情况，列出对象属性名称、类属性名称、基类属性名称。
+
+结果按照字符顺序列出。
+
+# `divmod(a, b)`
+
+对于整数，结果相当于`(a // b, a % b)`。
+对于浮点数， 结果相当于`(math.floor(a / b), a % b)`，`0 <= abs(a % b) < abs(b)`
+
+# `enumerate(iterable, start=0)`
+
+返回一个枚举对象，`iterable`必须是一个序列、迭代器或者其他支持迭代操作的对象。
+
+枚举对象的`__next__()`方法将返回一个元组，包括一个从0开始的计数和`iterable`迭代的值。
+
+# `filter(function, iterable)`
+
+构造一个迭代器，包含`iterable`中所有使得`function`返回True的元素。
+
+`iterable`可以是序列、支持迭代的容器或者迭代器。
+
+如果`function`是None，`iterable`中所有值为False的元素将被移除。
+
+```
+>>> lis = [0, 1, 2, [], '', ',']
+>>> [v for v in filter(None, lis)]
+[1, 2, ',']
+```
