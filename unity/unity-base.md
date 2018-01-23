@@ -2,6 +2,9 @@
 
 地形系统：GameObject->3D Object->Terrain
 
+# 导入模型
+
+直接将相应的模型文件放到assets目录下导入。
 
 # 材质
 
