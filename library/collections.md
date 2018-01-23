@@ -1,3 +1,5 @@
+[文档](https://docs.python.org/3/library/collections.html)
+
 `collections` 容器类型模块
 
 [官方文档](https://docs.python.org/3/library/collections.html)

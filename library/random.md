@@ -1,3 +1,5 @@
+[文档](https://docs.python.org/3/library/random.html)
+
 本模块提供伪随机数生成器。
 
 大部分功能都是以`random()`函数为基础的，生成[0.0, 1.0)的一个随机数。

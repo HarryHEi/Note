@@ -1,3 +1,5 @@
+[文档](https://docs.python.org/3/reference/datamodel.html)
+
 # 特殊方法名
 ## 属性接口
 
