@@ -324,3 +324,9 @@ add_executable(${TARGET} ${SOURCES} ${UI_GENERATED_HEADERS})
 ```
 target_link_libraries(${TARGET} ${QT5_LIBRARIES})
 ```
+
+编译:
+```
+在主目录下运行cmake . -G "Visual Studio 14 2015 Win64" -Bbuild
+在主目录下运行cmake --build build
+```
