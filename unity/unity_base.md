@@ -1,3 +1,9 @@
+---
+title: unity basic
+date: 2018-1-14 14:22:37
+tags: [unity]
+---
+
 # 内置系统
 
 地形系统：GameObject->3D Object->Terrain

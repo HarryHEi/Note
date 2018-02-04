@@ -1,3 +1,9 @@
+---
+title: 数据模式
+date: 2018-1-8 20:40:00
+tags: [python]
+---
+
 [文档](https://docs.python.org/3/reference/datamodel.html)
 
 # 特殊方法名

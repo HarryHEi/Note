@@ -1,3 +1,9 @@
+---
+title: os模块
+date: 2018-1-23 17:15:37
+tags: [python]
+---
+
 [文档](https://docs.python.org/3/library/os.html)
 
 `os.wait()`

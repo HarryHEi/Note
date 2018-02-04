@@ -1,3 +1,9 @@
+---
+title: gstreamer example
+date: 2018-2-2 16:02:00
+tags: [gstreamer]
+---
+
 # 播放一个amr的音频文件
 
 头文件如下:

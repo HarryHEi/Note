@@ -1,3 +1,9 @@
+---
+title: 内建类型
+date: 2017-11-30 17:29:37
+tags: [python]
+---
+
 # 参考文档
 [Built-in Types](https://docs.python.org/3.6/library/stdtypes.html)
 

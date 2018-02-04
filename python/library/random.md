@@ -1,3 +1,9 @@
+---
+title: 伪随机
+date: 2018-1-2 11:22:37
+tags: [python]
+---
+
 [文档](https://docs.python.org/3/library/random.html)
 
 本模块提供伪随机数生成器。

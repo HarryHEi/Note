@@ -1,3 +1,9 @@
+---
+title: 内建函数
+date: 2017-12-21 8:45:37
+tags: [python]
+---
+
 [文档](https://docs.python.org/3/library/functions.html)
 
 # `property`装饰器

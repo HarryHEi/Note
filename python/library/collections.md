@@ -1,7 +1,10 @@
+---
+title: 容器类型模块
+date: 2017-12-24 21:33:37
+tags: [python]
+---
+
 [文档](https://docs.python.org/3/library/collections.html)
-
-`collections` 容器类型模块
-
 [官方文档](https://docs.python.org/3/library/collections.html)
 
 # `deque`对象

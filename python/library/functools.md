@@ -1,3 +1,9 @@
+---
+title: functools
+date: 2018-1-27 20:10:37
+tags: [python]
+---
+
 [文档](https://docs.python.org/3/library/functools.html)
 
 functools模块用于高阶函数（表现为返回其他函数的函数）。

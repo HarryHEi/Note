@@ -1,3 +1,9 @@
+---
+title: torch
+date: 2018-2-4 21:41:37
+tags: [python]
+---
+
 [文档](http://pytorch.org/tutorials/beginner/blitz/tensor_tutorial.html)
 
 # Tensors
