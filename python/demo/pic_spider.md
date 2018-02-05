@@ -27,8 +27,8 @@ threads = []
 def get_page(url):
         req = urllib2.Request(url)
         try:
-                html = urllib2.urlopen(req)
-                return html
+            html = urllib2.urlopen(req)
+            return html
         except urllib2.URLError, e:
             if hasattr(e, "code"):
                 print "HTTP error: " + str(e.code)

@@ -176,7 +176,7 @@ function shout (num)
 {
     for (var count=0; count<num; count++)
     {
-        alert(count)
+        alert(count);
     }
 }
 shout(10)
@@ -308,7 +308,7 @@ list.shift();
 ```
 删除指定位置的元素，使用splice方法
 ```
-list.splice(3,2); //删除索引3开始的2各元素
+list.splice(3,2); //删除索引3开始的2个元素
 ```
 数组中插入元素
 ```

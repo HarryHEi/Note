@@ -11,6 +11,9 @@ tags: [python]
 
 + opencv
 + numpy
+
+思路是找寻红色或者蓝色的边界，然后画上矩形。
+
 # 代码如下
 ```
 #!/usr/bin/env python
