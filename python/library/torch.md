@@ -207,3 +207,86 @@ out.backward(torch.randn(1, 10))
 例如，`nn.Conv2d`将采用4D	 Tensor`nSamples * nChannels * Height * Width`。
 
 如果有个单独样例，使用`input.unsqueeze(0)`添加虚假的批量纬度。
+
+# Loss Function
+
+loss function拥有两个输入`(output, target)`，然后计算output和target之间的差值。
+
+在`nn`包中有一些不同的loss function，一个简单的loss是`nn.MSELoss`，计算input和target之间的均方误差。
+
+```
+output = hy_net(input_)
+target = Variable(torch.arange(1, 11))
+criterion = nn.MSELoss()
+
+loss = criterion(output, target)
+print(loss)
+```
+
+# Backprop
+
+为了反向传播错误，调用`loss.backward()`，需要清除现有的gradients，否则将累加到现有的gradients。
+
+现在调用`loss.backward()`，然后查看backward之前和之后的conv1的gradients
+
+```
+print('conv1.bias.grad before backward')
+print(hy_net.conv1.bia.grad)
+
+loss.backward()
+
+print('conv1.bias.grad after backward')
+print(hy_net.conv1.bia.grad)
+```
+
+输出
+```
+conv1.bias.grad before backward
+Variable containing:
+ 0
+ 0
+ 0
+ 0
+ 0
+ 0
+[torch.FloatTensor of size 6]
+
+conv1.bias.grad after backward
+Variable containing:
+1.00000e-02 *
+  1.8583
+  0.0107
+  2.6561
+  1.3492
+  2.4392
+  2.0675
+[torch.FloatTensor of size 6]
+```
+
+# 更新权重
+
+最简单的更新方式是Stochastic Gradient Descent(SGD 随机梯度下降)
+
+`weight = weight - learning_rate * gradient`
+
+用简单的python代码实现
+```
+learning_rate = 0.01
+for f in hy_net.parameters():
+    f.data.sub_(f.grad.data * learning_rate)
+```
+
+然而，当使用神经网络时，需要使用不同的更新规则，比如SGD、Nesterov-SGD、Adam、RMSProp等。`torch.optim`实现所有这些方法，使用方法如下:
+```
+import torch.optim as optim
+
+# 建立优化器
+optimizer = optim.SGD(hy_net.parameters(), lr=0.01)
+
+# 在训练循环中
+optimizer.zero_grad()  # 清空gradient buffers
+output = hy_net(input_)
+loss = criterion(output, target)
+loss.backward()
+optimizer.step()  # 更新
+```
