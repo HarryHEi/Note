@@ -290,3 +290,66 @@ loss = criterion(output, target)
 loss.backward()
 optimizer.step()  # 更新
 ```
+
+# 关于数据
+
++ 对于图片，使用比如Pillow、OpenCV之类的包
++ 对于音频，使用scipy、librosa等
++ 对于文本NLTK或者SpaCy
+
+对于视觉，提供了`torchvision`包，提供Imagenet、CIFAR10、MNIST等常用包，`torchvision.datasets`和`torch.utils.data.DataLoader`
+
+## 训练一个图片分类器
+
+1. 使用`torchvision`训练测试CIFAR10数据集
+2. 定义一个Convolution Neural Network(卷积神经网络)
+3. 定义一个loss function
+4. 在训练数据上训练网络
+5. 在测试数据上测试网络
+
+### 加载CIFAR10
+
+使用`torchvision`，很容易加载CIFAR10，torchvision datasets的输出是PILImage[0-1]范围的图片，转化为[-1,1]的图片。
+
+```
+import torch
+import torchvision
+import torchvision.transforms as transforms
+
+
+transform = transforms.Compose(
+    [
+        transforms.ToTensor(),
+        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+    ]
+)
+
+trainset = torchvision.datasets.CIFAR10(
+    root='.data',
+    train=True,
+    download=True,
+    transform=transform
+)
+trainloader = torch.utils.data.DataLoader(
+    trainset,
+    batch_size=4,
+    shuffle=True,
+    num_workers=2
+)
+
+testset = torchvision.datasets.CIFAR10(
+    root='data',
+    train=False,
+    download=True,
+    transform=transform
+)
+testloader = torch.utils.data.DataLoader(
+    testset,
+    batch_size=4,
+    shuffle=False,
+    num_workers=2
+)
+
+classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
+
+```
