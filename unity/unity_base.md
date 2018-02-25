@@ -8,6 +8,10 @@ tags: [unity]
 
 地形系统：GameObject->3D Object->Terrain
 
+# profiler
+
+内置分析器用于捕获场景实时数据并分析性能。window -> profiler或者ctrl + 7。
+
 # 导入模型
 
 直接将相应的模型文件放到assets目录下导入。
@@ -82,6 +86,15 @@ public class TestCreatePrefab : MonoBehaviour
 	}
 }
 ```
+
+# layer
+
+layer(图层)横跨多个不同对象。
+
+可以用图层指定对象绘制顺序或者照相机是否可见等。
+
+通过对象的inspector窗口选择layer，通过add layer或者edit->project setting->Tags and Layers自定义layer。
+
 
 # 声音
 
