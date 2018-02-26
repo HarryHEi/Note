@@ -96,6 +96,15 @@ layer(图层)横跨多个不同对象。
 通过对象的inspector窗口选择layer，通过add layer或者edit->project setting->Tags and Layers自定义layer。
 
 
+# 场景视图
+
+当需要移动场景时，右键长摁，通过`WASD`按钮可以进行"飞行模式"移动，通过按下`shift`加快移动速度。
+
+如果想要移动视角到某个游戏对象，在Hierarchy(层级试图)窗口选中该对象，然后鼠标移动到场景窗口，按下`F`。
+
+当选中某个照相机时，场景视图会出现照相机的预览。
+
+
 # 声音
 
 unity3D支持mp3、wav、ogg等多种音频格式。
