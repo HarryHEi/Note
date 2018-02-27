@@ -6,6 +6,8 @@ tags: [unity]
 
 Collider(碰撞机)
 
+当一个game object具有某个碰撞机，比如一个正方体碰撞机，那么它与其他对象接触时会表现的像个正方体。
+
 # Messages
 
 void OnTriggerEnter(Collider other);
