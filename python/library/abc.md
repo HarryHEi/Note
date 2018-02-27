@@ -5,7 +5,7 @@ tags: [python]
 ---
 
 
-# `class abc.ABC`
+`class abc.ABC`
 
 一个含有`ABCMeta`作为metaclass的帮助类，使用这个类方便创建抽象基类。
 ```
