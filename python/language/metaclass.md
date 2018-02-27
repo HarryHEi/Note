@@ -39,10 +39,10 @@ print(dir(d))
 相当于
 ```
 class Sub(Base):
-	a = 1
+    a = 1
 
-	def fun():
-		pass
+    def fun():
+        pass
 ```
 
 这里的type就是一个metaclass。
@@ -50,7 +50,7 @@ class Sub(Base):
 当有个类
 ```
 class Empty(Base):
-	pass
+    pass
 ```
 
 创建一个class的主要步骤如下：
