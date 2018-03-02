@@ -101,3 +101,14 @@ Completion Event Queue
 
 Asynchronous Event Demultiplexer
 等待事件或者条件变量直到Completion Event Queue有Completion Handler可以操作。
+
+## 用Windows Overlapped I/O(重叠IO)实现
+
+Asynchronous Opertation Queue
+有操作系统实现，通过调用overlapped函数实现，比如AcceptEx。
+
+Completion Event Queue
+有操作系统实现，和I/O完成端口关联，每个io_service实例都有一个I/O完成端口。
+
+Asynchronous Event Demultiplexer
+由Asio调用，将事件以及相关Completion Handler出列。
