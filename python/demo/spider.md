@@ -1,7 +1,7 @@
 ---
 title: python_spider
 date: 2016-03-15 19:45:06
-tags: [spider]
+tags: [python,spider]
 ---
 
 # 爬虫入门

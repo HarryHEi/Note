@@ -1,7 +1,7 @@
 ---
 title: 远程视频
 date: 2016-04-04 16:20:00
-tags: [socket]
+tags: [python,socket]
 ---
 
 # 功能

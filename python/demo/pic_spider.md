@@ -1,7 +1,7 @@
 ---
 title: 爬图
 date: 2016-03-20 19:26:19
-tags: [spider]
+tags: [python,spider]
 ---
 
 

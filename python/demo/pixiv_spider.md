@@ -1,7 +1,7 @@
 ---
 title: pixiv抓图
 date: 2016-04-28 12:48:53
-tags: [spider]
+tags: [python,spider]
 ---
 
 # 简述

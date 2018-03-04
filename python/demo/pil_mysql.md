@@ -1,7 +1,7 @@
 ---
 title: 图片插入mysql
 date: 2016-03-12 10:17:24
-tags: [mysql]
+tags: [python,mysql]
 ---
 
 
