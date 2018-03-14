@@ -64,11 +64,11 @@ do init
 
 `object.__repr(self)`
 
-由`repr()`方法调用，用于返回一个对象的可打印字符串，返回值传递给`eval()`可以获得该对象。
+由`repr()`方法以及`'%r'%object`调用，用于返回一个对象的可打印字符串，返回值传递给`eval()`可以获得该对象。
 
 `object.__str__(self)`
 
-由`str(object)`、`format()`和`print()`调用个，将对象进行字符串表示，返回值必须是一个字符串对象。和`__repr__()`不同的是，`__str__()`不一定返回有效的Python表达式。默认用`__repr__()`实现。
+由`str(object)`、`format()`和`print()`调用，将对象进行字符串表示，返回值必须是一个字符串对象。和`__repr__()`不同的是，`__str__()`不一定返回有效的Python表达式。当没有定义`__str__()`时，解释器会用`__repr__()`代替。
 
 `object.__bytes__(self)`
 

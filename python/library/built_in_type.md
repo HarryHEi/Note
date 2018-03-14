@@ -375,3 +375,39 @@ KeyError: 'a'
 和其他容器类似，集合支持`in`、`len()`和`for in`操作。因为是无序容器，不记录元素位置和插入顺序，因此也不支持索引、分片或者其他类似有序容器的行为。
 
 有两个内建set类型，`set`和`frozenset`
+
+# 列表推导
+
+列表推导是构建list的快捷方法。比如把Unicode字符串变为码位表。
+```
+>>> s='12312#$%^&*'
+>>> [ord(c) for c in s]
+[49, 50, 51, 49, 50, 35, 36, 37, 94, 38, 42]
+```
+
+使用列表推导计算笛卡尔积，可以发现嵌套顺序和for语句出现的顺序一样。
+```
+>>> colors = ['black', 'white']
+>>> sizes = ['M', 'L', 'XL']
+>>> [(color, size) for color in colors for size in sizes]
+[('black', 'M'), ('black', 'L'), ('black', 'XL'), ('white', 'M'), ('white', 'L'), ('white', 'XL')]
+```
+
+# 生成器表达式
+
+生成器表达式可以用来创建其他任何类型的序列。虽然可以用列表推导初始化元组、数组或者其他类型，但是使用生成器的方式更节省内存。形式上只是换成了圆括号。
+
+如果生成器表达式是函数的唯一参数，可以省略圆括号。
+
+生成器逐个产出元素，并不会一次性产出所有元素。
+```
+>>> for tshirt in ('{},{}'.format(c, s) for c in colors for s in sizes):
+...     print(tshirt)
+...
+black,M
+black,L
+black,XL
+white,M
+white,L
+white,XL
+```

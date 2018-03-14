@@ -1,13 +1,14 @@
 ---
-title: 容器类型模块
+title: collections
 date: 2017-12-24 21:33:37
 tags: [python]
 ---
 
 [文档](https://docs.python.org/3/library/collections.html)
-[官方文档](https://docs.python.org/3/library/collections.html)
 
-# `deque`对象
+这个模块实现了专用的容器类型以代替Python的内建容器dict、list、set和tuple。
+
+# deque
 
 和`list`内置类型相似的容器，可以从两端添加弹出元素吗，线程安全。
 
@@ -74,4 +75,49 @@ deque([1, 2, 3, 4, 5])
 >>> delete_nth(d, 2)
 >>> d
 deque([1, 2, 4, 5])
+```
+
+# namedtuple
+
+`collections.namedtuple(typename, field_names, *, verbose=False, module=None)`
+
+用以构建只有少数属性但是没有方法的对象，比如数据库条目。例如创建一个纸牌对象
+```
+>>> import collections
+>>> Card = collections.namedtuple('Card', ['rank', 'suit'])
+```
+
+namedtuple赋予元组中每个位置含义，常规元组可以使用的地方都能使用，并且具有通过名称索引的能力。
+
+`typename`为返回的namedtuple的名称。
+
+`field_names`是字符串序列，也可以是以空白或者逗号隔开的字符串，比如`'x y'`以及`'x, y'`。字段名称不得以下划线或者数字开始，不能是Python关键字。
+
+如果`verbose`为True，类定义会在构建后打印出来，或者通过`_source`属性打印。
+
+如果`rename`为True，无效的字段名会自动替换为位置名称。形如`_1`。
+
+如果定义了`module`，`__module__`会被设置为该值。
+
+`_fields`属性是包含这个类所有字段名称的元组。
+```
+>>> Card._fields
+('rank', 'suit')
+```
+
+`_make()`方法接受一个可迭代对象来生成这个类的一个实例，作用和`namedtuple(*iterable)`一样。
+```
+>>> Card._make([1, 'cube'])
+Card(rank=1, suit='cube')
+>>> Card(*[1, 'cube'])
+Card(rank=1, suit='cube')
+>>> Card(1, 'cube')
+Card(rank=1, suit='cube')
+```
+
+`_asdict()`把元组以collections.OrderedDict的形式返回，用于显示元组的信息。
+```
+>>> card = Card(1, 'cube')
+>>> card._asdict()
+OrderedDict([('rank', 1), ('suit', 'cube')])
 ```
