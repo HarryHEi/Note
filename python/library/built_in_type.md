@@ -368,6 +368,39 @@ KeyError: 'a'
 ### `str.isidentifier()`
 如果是合法的标识符，返回true。
 
+# 映射
+
+在`collection.abc`中有两个抽象基类`Mapping`和`MutableMapping`，一般不被直接继承，定义了映射类型基本接口，可被用于isinstance判断某个数据是不是映射类型
+```
+>>> my_dict = {}
+>>> isinstance(my_dict, collection.abc.Mapping)
+```
+
+## setdefault(k[, default])
+
+`setdefault(k[, default])`方法相比较`get(k, default)`方法，不同点是在没有找到键`k`时能够更新映射对象的值。
+使用get()方式更新字典中的一个数组，进行了两次查询：
+```
+lis = m.get(k, [])
+lis.append(val)
+m[k] = lis
+```
+使用setdefault()方式:
+```
+m.setdefault(k, []).append(val)
+```
+相当于:
+```
+if k not in m:
+    m[k] = []
+m[k].append(val)
+```
+这种方式可能要进行三次查询。
+
+## `__missing__()`
+
+当`__getitem__()`方法找不到键时会调用`__missing__()`，对`get()`或者`__contains__()`等方法没有影响。
+
 # 集合类型
 
 集合类型是哈希对象组成的无序容器，通常支持成员检测、删重以及形如交、并、差分、均匀差分等计算操作。

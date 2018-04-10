@@ -121,3 +121,13 @@ Card(rank=1, suit='cube')
 >>> card._asdict()
 OrderedDict([('rank', 1), ('suit', 'cube')])
 ```
+
+# collection.defaultdict
+
+defaultdict在找不到key时可以根据给出的方法创建默认值。
+
+创建defaultdict时传入一个可调用对象，这个可调用对象会存入`default_factory`，，当`__getitem__()`方法知道不到key值时，会调用这个可调用对象并存下并返回值。
+
+如果没有指定default_factory，当找不到key时会抛出KeyError异常。
+
+注意default_factory只有在`__getitem__()`方法找不到key时调用，在`get()`方法中只会返回None。
