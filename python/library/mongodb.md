@@ -73,3 +73,36 @@ net stop MongoDB
 ```
 mongod --remove
 ```
+
+# 权限配置
+
+使用`mongo`登录数据库
+```
+mongo
+```
+
+首先添加一个具有`userAdminAnyDatabase`权限的用户，绑定`admin`库，这个用户只负责管理其他用户，不对数据库进行操作。
+```
+> use admin
+> db.createUser({ user: "useradmin", pwd: "123456", roles: [{ role: "userAdminAnyDatabase", db: "admin" }] })
+```
+
+使用这个账户登录
+```
+mongo -u "useradmin" -p "123456"
+```
+
+针对test库添加一个satncs用户
+```
+> use test
+> db.createUser({user: "satncs", pwd: "satncs", roles: [{role: "dbOwner", db: "test"}]})
+```
+
+这样用户satncs就添加成功了，如果mongodb compass 连接显示报错，重启一下客户端就行。
+
+# 连接
+
+URL连接格式
+```
+mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database][?options]]
+```
