@@ -98,6 +98,12 @@ mongo -u "useradmin" -p "123456" --authenticationDatabase "admin"
 > db.createUser({user: "satncs", pwd: "satncs", roles: [{role: "dbOwner", db: "test"}]})
 ```
 
+修改配置文件，开启用户验证
+```
+security:
+    authorization: enabled
+```
+
 这样用户satncs就添加成功了，如果mongodb compass 连接显示报错，重启一下客户端就行。
 
 # 连接
