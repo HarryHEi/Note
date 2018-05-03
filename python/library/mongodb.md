@@ -89,7 +89,7 @@ mongo
 
 使用这个账户登录
 ```
-mongo -u "useradmin" -p "123456"
+mongo -u "useradmin" -p "123456" --authenticationDatabase "admin"
 ```
 
 针对test库添加一个satncs用户
