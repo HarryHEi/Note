@@ -134,6 +134,8 @@ class WriteLoop(gevent.Greenlet):
     def _run(self):
         while True:
             data = self.queue.get()
+            quit_number = None
+            need_remove = False
             for number, client in self.client_container.items():
                 if client.sock != self.sk:
                     try:
@@ -142,6 +144,12 @@ class WriteLoop(gevent.Greenlet):
                     except Exception as e:
                         logging.error(e)
                         logging.error('{} disconnect'.format(self.address))
+                        quit_number = number
+                        need_remove = True
+
+            if need_remove and quit_number:
+                logging.info('remove {}'.format(self.client_container.get(quit_number)))
+                del self.client_container[quit_number]
 
 
 def number_generator():
