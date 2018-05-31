@@ -11,18 +11,15 @@ tags: [python]
 
 """提供JSON-RPC服务
 
-监听地址，等待连接
+监听地址，等待RPC连接
 """
-
-import socket
 
 import gevent.monkey
 import gevent.server
+from gevent import socket
 import bsonrpc
 
 from common.logging import logging
-
-gevent.monkey.patch_socket()
 
 
 class RpcManagerServer(gevent.Greenlet):
@@ -41,7 +38,7 @@ class RpcManagerServer(gevent.Greenlet):
 
     该类只会保存上一个连接的客户端的rpc对象，如果需要处理所有连接，需要编写保存RPC对象的代码
     """
-    def __init__(self, address, server=None, call_back=None):
+    def __init__(self, address, services=None, call_back=None):
         """
         Args:
             address: tuple (ip, port)
@@ -49,7 +46,7 @@ class RpcManagerServer(gevent.Greenlet):
         super(RpcManagerServer, self).__init__()
 
         self.address = address
-        self.server = server
+        self.services = services
         self.call_back = call_back
         self._sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._sock.bind(address)
@@ -69,15 +66,15 @@ class RpcManagerServer(gevent.Greenlet):
             ))
             self.rpc = bsonrpc.JSONRpc(
                 clt,
-                self.server,
+                services=self.services,
                 concurrent_notification_handling=bsonrpc.ThreadingModel.GEVENT,
                 concurrent_request_handling=bsonrpc.ThreadingModel.GEVENT,
                 threading_model=bsonrpc.ThreadingModel.GEVENT
             )
             self.peer = self.rpc.get_peer_proxy(timeout=5)
             if self.call_back:
-                self.call_back(self)
-
+                # self.call_back(self)
+                gevent.spawn(self.call_back, self)
 ```
 
 ```
@@ -85,20 +82,15 @@ class RpcManagerServer(gevent.Greenlet):
 
 """连接终端的RPC服务
 
-客户端类：
-    主动连接客户端RPC，提供JSONRpc对象，用于进行调用。
+主动连接客户端RPC，提供JSONRpc对象，用于进行调用。
 """
-
-import socket
 
 import gevent.monkey
 import gevent.event
+from gevent import socket
 import bsonrpc
 
 from common.logging import logging
-
-
-gevent.monkey.patch_socket()
 
 
 class RpcManagerClient(gevent.Greenlet):
@@ -151,7 +143,8 @@ class RpcManagerClient(gevent.Greenlet):
                 )
                 self.peer = self.rpc.get_peer_proxy(timeout=5)
                 if self.call_back:
-                    self.call_back(self)
+                    # self.call_back(self)
+                    gevent.spawn(self.call_back, self)
                 self.rpc.join()
             except Exception as e:
                 logging.error(e)
@@ -162,5 +155,4 @@ class RpcManagerClient(gevent.Greenlet):
         self._sk.close()
         self._stop_event.set()
         self.kill()
-
 ```
