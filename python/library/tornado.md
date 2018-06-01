@@ -148,3 +148,36 @@ app.listen(9999)
 tornado.ioloop.IOLoop.current().spawn_callback(handle_loop)
 tornado.ioloop.IOLoop.current().start()
 ```
+
+使用asyncio事件循环
+
+python3.5 添加了`async`和`await`关键字，多数`yield`关键字的地方可以换成`await`关键字。
+```
+@asyncio.coroutine
+async def fetch_url():
+    client = tornado.httpclient.AsyncHTTPClient()
+    response = await client.fetch('https://www.baidu.com')
+    print(response)
+
+
+loop = asyncio.get_event_loop()
+loop.create_task(fetch_url())
+loop.run_until_complete(fetch_url())
+```
+
+多个协程
+```
+@asyncio.coroutine
+async def fetch_urls():
+    client = tornado.httpclient.AsyncHTTPClient()
+    response = await asyncio.wait([
+        client.fetch('https://www.baidu.com'),
+        client.fetch('https://www.bing.com')
+    ])
+    print(response)
+
+
+loop = asyncio.get_event_loop()
+loop.create_task(fetch_urls())
+loop.run_until_complete(fetch_urls())
+```
