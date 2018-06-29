@@ -160,6 +160,8 @@ Windiws 安装 `gstreamer` 需要下载两个安装包，分别是devel安装包
 
 选择安装完整版，安装完成后，D盘会多了一个gstreamer目录。
 
+添加目录`E:\gstreamer\1.0\x86_64\bin`到环境变量。
+
 Visual Studio配置：
 
 C/C++ -> 常规 -> 附加包含目录:
