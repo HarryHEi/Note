@@ -14,7 +14,57 @@ tags: [django]
 
 # 配置
 
-`INSTALLED_APPS`添加`rest_framework`
+```
+INSTALLED_APPS = [
+    ...
+    'rest_framework',
+    'rest_framework.authtoken',
+    'djoser',
+    'communications.apps.CommunicationsConfig',
+    'users.apps.UsersConfig',
+    'groups.apps.GroupsConfig',
+    'prices.apps.PricesConfig',
+    'api_auth.apps.ApiAuthConfig',
+]
+```
+
+指定使用mysql，在建库的时候指定charset。
+
+```
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'bcfm',
+        'USER': 'satncs',
+        'PASSWORD': 'satncs',
+        'HOST': '192.168.0.201',
+        'PORT': '3306',
+        'OPTIONS': {
+            'charset': 'utf8mb4',
+        }
+    }
+}
+```
+
+使用JWT token
+
+```
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+    ),
+}
+```
+
+配置 JWT
+
+```
+JWT_AUTH = {
+    'JWT_AUTH_COOKIE': 'token',  # 使用cookie
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(minutes=30),
+    'JWT_ALLOW_REFRESH': True,
+}
+```
 
 # Serializer
 
