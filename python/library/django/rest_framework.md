@@ -84,6 +84,58 @@ JWT_AUTH = {
 
 将serializer和model绑定，在Meta中设置model和fields
 
+### 只读字段
+
+如果在model是个function而不是一个真实字段，默认就是只读字段。
+
+如果需要指定某个fields的字段为只读，同时添加这个字段到`read_only_fields`中。
+
+### 自定义构造返回数据的方式
+
+通过重写`to_representation`方法，可以自定义构造的数据的结构。
+
+比如单独取出某个关系表的一个字段。
+```
+def to_representation(self, instance):
+    data = super(UserSerializer, self).to_representation(instance)
+    data.update({'groups': [group.name for group in instance.groups.all()]})
+    device_serializer = DeviceSerializer(instance.devices, many=True)
+    data.update({'devices': device_serializer.data})
+
+    return data
+```
+
+或者构建层层嵌套的数据
+```
+def to_representation(self, instance):
+    data = super(DeptSerializer, self).to_representation(instance)
+    data.update(
+        {
+            'stations': [StationSerializer(station).data for station in instance.stations.all()]
+        }
+    )
+    return data
+```
+
+### 自定义某个字段的校验
+
+通过定义`validate_{字段值}`方法，对字段进行校验，如果校验不通过，可以抛出`ValidationError`异常。
+
+### 自定义同时校验多个字段的方法
+
+通过重写`to_internal_value`方法，该方法有一个`data`参数，是个字典，校验方法和校验一个字段类似，返回的也是字典。
+
+### 自定义save方法
+
+通过自定义save方法完成特定的保存操作，比如调用`set_password`设置用户的密码，而不是直接赋值。
+```
+def save(self, **kwargs):
+    data = self.validated_data
+    user = User.objects.get(username=data["user"]['username'])
+    user.set_password(user.username)
+    user.save()
+```
+
 # View
 
 [示例](https://www.django-rest-framework.org/tutorial/1-serialization/)
@@ -134,6 +186,14 @@ api_view函数接收一个序列参数，包含支持的方法，比如`GET`、`
 
 继承ViewSets可以用来生成`list`、`post`、 `retrieve`等处理函数，或者使用Routers注册，会自动生成路由。
 
+### 自定义特殊方法
+
+通过使用`action`装饰器，定义特殊方法，`methods`参数指定支持的HTTP方法，`detail`指定是否是指定某列，`permission_classes`可以特殊指定这个方法的权限验证类。
+
+### 自定义表的查询方式
+
+如果需要自定义表的查询方式，可以重写`get_queryset`方法，而不用指定`queryset`属性，但是如果使用router，需要在register时指定第三个参数`base_name`，一般为库名称的小写格式。
+
 # 权限
 ## 登录路由
 
@@ -145,6 +205,18 @@ urlpatterns += [
 ]
 ```
 
+### JWT支持
+
+`rest_framework_jwt`提供了JWT的获取以及刷新的View，添加到url。
+```
+from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token
+
+urlpatterns = [
+    path('login/', obtain_jwt_token),
+    path('refresh/', refresh_jwt_token),
+]
+```
+
 ## permissions
 
 [示例](https://www.django-rest-framework.org/tutorial/4-authentication-and-permissions/)
@@ -152,3 +224,34 @@ urlpatterns += [
 在View中指定`permission_classed`属性，值为一个元组，`permissions.IsAuthenticatedOrReadOnly`表示非登录只有只读权限
 
 通过继承`permission.BasePermission`，自定义`has_object_permission`方法决定权限内容。
+
+```
+class IsAdminOrOwnerReadOnly(BasePermission):
+    """
+    管理员或者是用户做自己账户相关的只读动作
+    """
+
+    def has_permission(self, request, view):
+        return (
+            view.detail and
+            request.user == view.get_object() and
+            request.method in SAFE_METHODS or
+            request.user.is_authenticated and
+            request.user.is_staff
+        )
+
+
+class IsAdminOrOwner(BasePermission):
+    """
+    管理员或者用户自己
+    """
+
+    def has_permission(self, request, view):
+        return (
+            view.detail and
+            request.user == view.get_object() or
+            request.user.is_authenticated and
+            request.user.is_staff
+        )
+
+```
