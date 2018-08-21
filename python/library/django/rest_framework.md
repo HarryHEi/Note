@@ -123,7 +123,26 @@ def to_representation(self, instance):
 
 ### 自定义同时校验多个字段的方法
 
-通过重写`to_internal_value`方法，该方法有一个`data`参数，是个字典，校验方法和校验一个字段类似，返回的也是字典。
+通过重写`to_internal_value`方法，该方法有一个`data`参数，是个字典，校验方法和校验一个字段类似，返回的也是字典。可以先调用继承来的`to_internal_value`，然后再校验
+```
+def to_internal_value(self, data):
+    value = super(ControlChannelSerializer, self).to_internal_value(data)
+
+    freq_segment = value['freq_segment']
+    up_freq_begin = value['up_freq_begin']
+    up_freq_end = value['up_freq_end']
+    down_freq_begin = value['down_freq_begin']
+    down_freq_end = value['down_freq_end']
+    
+    if up_freq_end - up_freq_begin != down_freq_end - down_freq_begin:
+        raise ValidationError(
+            {
+                'error': 'up_freq_end - up_freq_begin == down_freq_end - down_freq_begin'
+            }
+        )
+
+    return value
+```
 
 ### 自定义save方法
 
