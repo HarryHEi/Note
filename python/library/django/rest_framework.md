@@ -144,6 +144,24 @@ def to_internal_value(self, data):
     return value
 ```
 
+### 自定义create方法
+
+如果希望自定义创建字段的方法，比如希望通过设备地址创建设备的日志，可以自定义create，因为字段事先校验过，所以不用再校验，只需要通过`CharField`字段的address字段找到对应的device，然后新建一个字段实例返回。
+```
+def create(self, validated_data):
+    time = validated_data['time']
+    duration = validated_data['duration']
+    address = validated_data['device']['address']
+    try:
+        device = Device.objects.get(address=address)
+    except Device.DoesNotExist:
+        raise ValidationError({
+            'address': 'device address {} not exists'.format(address)
+        })
+    else:
+        return Record.objects.create(time=time, duration=duration, device=device)
+```
+
 ### 自定义save方法
 
 通过自定义save方法完成特定的保存操作，比如调用`set_password`设置用户的密码，而不是直接赋值。
