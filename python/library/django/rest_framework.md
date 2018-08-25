@@ -292,3 +292,65 @@ class IsAdminOrOwner(BasePermission):
         )
 
 ```
+
+# 部署
+## python环境
+项目文件拷贝到`/home/xxx`，切换到该目录。
+
+创建虚拟环境
+```
+virtualenv env --python=python3
+```
+启用虚拟环境
+```
+source venv/bin/active
+```
+
+## 数据库
+### 安装mysql
+
+[安装](https://www.digitalocean.com/community/tutorials/how-to-install-mysql-on-ubuntu-16-04)
+```
+sudo apt-get install mysql-server
+mysql_secure_installation
+```
+如果使用比较简单的密码
+```
+sudo mysql -u root -p
+uninstall plugin validate_password;
+```
+
+### 创建用户和数据库
+
+[创建用户](https://www.digitalocean.com/community/tutorials/how-to-create-a-new-user-and-grant-permissions-in-mysql)
+```
+CREATE USER 'newuser'@'localhost' IDENTIFIED BY 'password';
+GRANT ALL PRIVILEGES ON * . * TO 'newuser'@'localhost';
+FLUSH PRIVILEGES;
+```
+
+创建库的时候指定编码为`utf8mb4`
+```
+create database xxx default charset = "utf8mb4";
+```
+
+### 修改setting文件
+修改文件中指定的库地址
+
+修改debug为False
+
+修改白名单为本地ip
+
+## 静态文件部署
+将静态文件拷贝到`/usr/share/nginx/`;
+
+## nginx
+将配置文件`nginx.conf`拷贝到`/etc/nginx/site-enabled/`;
+```
+sudo servcice nginx restart
+```
+
+## wsgi启动
+```
+uwsgi  --emperor conf/xxx.ini
+```
