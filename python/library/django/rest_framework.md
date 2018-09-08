@@ -162,6 +162,19 @@ def create(self, validated_data):
         return Record.objects.create(time=time, duration=duration, device=device)
 ```
 
+### 自定义修改时的字段校验
+
+如果希望校验用户修改的字段，比如不允许用户修改某一个字段，可以自定义update方法，先取出用户想要修改的值，因为用户可能使用的是PATCH方法，并不一定提交所有字段，因此使用字典的get方法。
+```
+def update(self, instance, validated_data):
+    satellite = validated_data.get('satellite', instance.satellite)
+    if satellite.id != instance.satellite.id:
+        raise ValidationError({
+            'satellite': 'can`t change satellite'
+        })
+    return super(BeamSerializer, self).update(instance, validated_data)
+```
+
 ### 自定义save方法
 
 通过自定义save方法完成特定的保存操作，比如调用`set_password`设置用户的密码，而不是直接赋值。
