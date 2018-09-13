@@ -310,6 +310,14 @@ class IsAdminOrOwner(BasePermission):
 ## python环境
 项目文件拷贝到`/home/xxx`，切换到该目录。
 
+安装virtualenv
+```
+sudo apt-get install virtualenv
+```
+安装pip3
+```
+sudo apt-get install python3-pip
+```
 创建虚拟环境
 ```
 virtualenv env --python=python3
@@ -325,6 +333,7 @@ source venv/bin/active
 [安装](https://www.digitalocean.com/community/tutorials/how-to-install-mysql-on-ubuntu-16-04)
 ```
 sudo apt-get install mysql-server
+sudo apt-get install python-dev libmysqlclient-dev
 mysql_secure_installation
 ```
 如果使用比较简单的密码
@@ -363,7 +372,32 @@ create database xxx default charset = "utf8mb4";
 sudo servcice nginx restart
 ```
 
-## wsgi启动
+## wsgi
+安装
 ```
-uwsgi  --emperor conf/xxx.ini
+pip3 install uwsgi
+```
+启动
+```
+uwsgi --emperor conf/xxx.ini
+```
+
+## supervisor
+安装
+```
+sudo apt-get install supervisor
+```
+配置
+```
+[program:cwm]
+command=/home/satncs/cwm/venv/bin/uwsgi /home/satncs/cwm/conf/uwsgi.ini
+directory=/home/satncs/cwm
+user=satncs
+autostart=true
+autorestart=true
+stdout_logfile=/home/satncs/cwm/logs/uwsgi_supervisor.log
+```
+启动
+```
+service supervisor start
 ```
