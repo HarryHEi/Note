@@ -144,6 +144,30 @@ def to_internal_value(self, data):
     return value
 ```
 
+但是这样会有问题，如果是使用patch方式调用接口，可能并不含有所有字段，因此要加上默认值，可以从instance中获取当前值，创建的时候是没有instance的，所以加上判断
+```
+def to_internal_value(self, data):
+    value = super(ControlChannelSerializer, self).to_internal_value(data)
+
+    freq_segment = value.get('freq_segment', self.instance.freq_segment if self.instance else None)
+    up_freq_begin = value.get('up_freq_begin', self.instance.freq_segment.up_freq_begin if self.instance else None)
+    up_freq_end = value.get('up_freq_end', self.instance.up_freq_end if self.instance else None)
+    down_freq_begin = value.get('down_freq_begin', self.instance.down_freq_begin if self.instance else None)
+    down_freq_end = value.get('down_freq_end', self.instance.down_freq_end if self.instance else None)
+
+    if up_freq_end - up_freq_begin != down_freq_end - down_freq_begin:
+        raise ValidationError(
+            {
+                'up_freq_end': 'up_freq_end - up_freq_begin == down_freq_end - down_freq_begin',
+                'up_freq_begin': 'up_freq_end - up_freq_begin == down_freq_end - down_freq_begin',
+                'down_freq_end': 'up_freq_end - up_freq_begin == down_freq_end - down_freq_begin',
+                'down_freq_begin': 'up_freq_end - up_freq_begin == down_freq_end - down_freq_begin',
+            }
+        )
+
+    return value
+```
+
 ### 自定义create方法
 
 如果希望自定义创建字段的方法，比如希望通过设备地址创建设备的日志，可以自定义create，因为字段事先校验过，所以不用再校验，只需要通过`CharField`字段的address字段找到对应的device，然后新建一个字段实例返回。
