@@ -446,7 +446,7 @@ ssh-copy-id user@host
 
 使用远程转发的方式
 ```
-ssh -p port -NfR remote_host:remote_port:local_host:local_port remote_user@host
+ssh -M 0 -o "ServerAliveInterval 30" -o "ServerAliveCountMax 3" -p port -NfR remote_host:remote_port:local_host:local_port remote_user@host
 ```
 
 注意不能使用数据库的root账号登录。
