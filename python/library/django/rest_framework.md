@@ -426,6 +426,20 @@ stdout_logfile=/home/satncs/cwm/logs/uwsgi_supervisor.log
 service supervisor start
 ```
 
+## 使用key登录服务器
+
+[参考](https://www.digitalocean.com/community/tutorials/how-to-set-up-ssh-keys--2)
+
+生成公钥和私钥
+```
+ssh-keygen -t rsa
+```
+
+拷贝公钥到服务器
+```
+ssh-copy-id user@host
+```
+
 ## 建立ssh tunnel
 
 [参考](https://www.cnblogs.com/37yan/p/9003423.html)
@@ -436,3 +450,5 @@ ssh -p port -NfR remote_host:remote_port:local_host:local_port remote_user@host
 ```
 
 注意不能使用数据库的root账号登录。
+
+如果希望自动重连，使用autossh代替ssh。
