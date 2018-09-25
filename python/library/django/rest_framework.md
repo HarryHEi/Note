@@ -425,3 +425,14 @@ stdout_logfile=/home/satncs/cwm/logs/uwsgi_supervisor.log
 ```
 service supervisor start
 ```
+
+## 建立ssh tunnel
+
+[参考](https://www.cnblogs.com/37yan/p/9003423.html)
+
+使用远程转发的方式
+```
+ssh -p port -NfR remote_host:remote_port:local_host:local_port remote_user@host
+```
+
+注意不能使用数据库的root账号登录。
