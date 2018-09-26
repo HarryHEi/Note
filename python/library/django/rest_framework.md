@@ -452,3 +452,20 @@ ssh -M 0 -o "ServerAliveInterval 30" -o "ServerAliveCountMax 3" -p port -NfR rem
 注意不能使用数据库的root账号登录。
 
 如果希望自动重连，使用autossh代替ssh。
+
+## 给与用于远程连接数据库的权限
+
+如果需要的话，可以给用户远程登录数据库的权限
+
+首先需要修改数据库监听的地址
+```
+vi /etc/mysql/mysql.conf.d/mysql.cnf
+
+bind-address = 0.0.0.0
+```
+
+创建远程访问的用户，给与数据库的权限。
+```
+create user 'user'@'%' identified by 'password';
+grant all on database_name.* to 'user'@'%';
+```
