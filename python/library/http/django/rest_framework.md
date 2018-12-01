@@ -264,6 +264,28 @@ api_view函数接收一个序列参数，包含支持的方法，比如`GET`、`
 
 通过使用`action`装饰器，定义特殊方法，`methods`参数指定支持的HTTP方法，`detail`指定是否是指定某列，`permission_classes`可以特殊指定这个方法的权限验证类。
 
+例如，定义一个action用于修改用户基本信息。
+```
+@action(methods=['POST'], detail=True, permission_classes=[IsAdminOrOwner, ])
+def profile(self, request, pk=None):
+    """
+    修改基本信息
+    """
+    serializer = ProfileSerializer(data=request.data)
+    if serializer.is_valid():
+        data = serializer.validated_data
+        user = self.get_object()
+        user.username = data['username']
+        user.save()
+        user_serializer = UserSerializer(user)
+        return Response(data=user_serializer.data, status=HTTP_200_OK)
+    return Response(data=serializer.data, status=HTTP_400_BAD_REQUEST)
+```
+如果使用reverse获取路由地址，需要指定名称和索引标识。
+```
+reverse('jwt-auth:user-profile', args=(user.id, ))
+```
+
 ### 自定义表的查询方式
 
 如果需要自定义表的查询方式，可以重写`get_queryset`方法，而不用指定`queryset`属性，但是如果使用router，需要在register时指定第三个参数`base_name`，一般为库名称的小写格式。
@@ -361,6 +383,41 @@ class IsAdminOrOwner(BasePermission):
             request.user.is_staff
         )
 
+```
+
+# 测试用例
+每隔测试用例是独立的上下文，编写测试用例时可以先创建一些函数用来快捷添加用户。
+```
+def create_common_user(username='test_user', password='user_password'):
+    user = User.objects.create(username=username)
+    user.set_password(password)
+    user.save()
+    return user
+
+def common_user_login(client, username='test_user', password='user_password'):
+    response = client.post(
+        reverse('jwt-auth:jwt-auth-login'),
+        data={
+            'username': username,
+            'password': password
+        }
+    )
+    return response
+
+def get_common_user_authorization(client, username='test_user', password='user_password'):
+    response = common_user_login(client, username, password)
+    return 'JWT {}'.format(response.data['token'])
+```
+需要模拟用户请求时，有时候需要添加用户认证信息，添加`HTTP_AUTHORIZATION`即可。
+```
+response = self.client.post(
+    post_url,
+    data={
+        'username': 'test_user',
+        'password': 'test_password'
+    },
+    HTTP_AUTHORIZATION=token
+)
 ```
 
 # 部署
