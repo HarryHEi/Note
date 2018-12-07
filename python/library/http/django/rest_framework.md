@@ -254,6 +254,68 @@ api_view函数接收一个序列参数，包含支持的方法，比如`GET`、`
 
 也可以自定义`get`、`post`等方法。
 
+### 使用自定义方式获取数据并返回（代理）
+如果希望使用自定义的方式获取数据，比如使用代理的方式，从其他后端获取数据，可以使用GenericViewSet自定义ViewSet。
+首先自定义一个Serializer，定义简单的字段
+```
+class ConfigureSerializer(Serializer):
+    name = CharField(max_length=16)
+
+    def create(self, validated_data):
+        raise ValidationError('Not Support create')
+
+    def update(self, instance, validated_data):
+        raise ValidationError('Not Support update')
+
+    def to_representation(self, instance):
+        return super(ConfigureSerializer, self).to_representation(instance)
+
+    def to_internal_value(self, data):
+        return {
+            'name': data.get('name'),
+        }
+```
+然后定义ViewSet，自定义`list`等方法，使用代理的方式获取数据。
+```
+class ConfigureViewSet(GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMixin):
+    """
+    分级管理器配置
+    """
+    serializer_class = ConfigureSerializer
+    ltl_url = '{}/{}'.format(LTL_URL_ROOT, CONFIGURE_URL)
+
+    def list(self, request, *args, **kwargs):
+        return do_proxy_get(self.ltl_url)
+
+    def create(self, request, *args, **kwargs):
+        serializer = ConfigureSerializer(data=request.data)
+        if serializer.is_valid():
+            return do_proxy_post(self.ltl_url, serializer.data)
+        else:
+            return Response(data=serializer.errors, status=HTTP_400_BAD_REQUEST)
+```
+如果用requets实现代理，像这样
+```
+def ltl_proxy(request, url, *args, **kwargs):
+    try:
+        res = request(url, *args, **kwargs)
+    except requests.exceptions.ConnectionError:
+        return Response(data='Can`t connect to LTL', status=HTTP_500_INTERNAL_SERVER_ERROR)
+    if res.status_code == 200:
+        instance = json.loads(res.text)
+        return Response(instance)
+    else:
+        return Response(status=res.status_code)
+
+
+def do_proxy_get(url):
+    return ltl_proxy(requests.get, url)
+
+
+def do_proxy_post(url, data):
+    return ltl_proxy(requests.post, url, data=data)
+```
+
 ## 继承 ViewSets
 
 [示例](https://www.django-rest-framework.org/tutorial/6-viewsets-and-routers/)
