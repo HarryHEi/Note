@@ -186,6 +186,15 @@ def create(self, validated_data):
         return Record.objects.create(time=time, duration=duration, device=device)
 ```
 
+通过自定义create方法完成特定的添加操作，比如调用`set_password`设置用户的密码，而不是直接赋值。
+```
+def create(self, validated_data):
+    user = User.objects.create(**validated_data)
+    user.set_password(validated_data['password'])
+    user.save()
+    return user
+```
+
 ### 自定义修改时的字段校验
 
 如果希望校验用户修改的字段，比如不允许用户修改某一个字段，可以自定义update方法，先取出用户想要修改的值，因为用户可能使用的是PATCH方法，并不一定提交所有字段，因此使用字典的get方法。
@@ -197,17 +206,6 @@ def update(self, instance, validated_data):
             'satellite': 'can`t change satellite'
         })
     return super(BeamSerializer, self).update(instance, validated_data)
-```
-
-### 自定义save方法
-
-通过自定义save方法完成特定的保存操作，比如调用`set_password`设置用户的密码，而不是直接赋值。
-```
-def save(self, **kwargs):
-    data = self.validated_data
-    user = User.objects.get(username=data["user"]['username'])
-    user.set_password(user.username)
-    user.save()
 ```
 
 # View
