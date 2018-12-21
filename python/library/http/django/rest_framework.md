@@ -551,6 +551,26 @@ sudo servcice nginx restart
 ```
 pip3 install uwsgi
 ```
+配置
+```
+[uwsgi]
+project = cwm
+base = /home/admin
+
+chdir = %(base)/%(project)
+home = %(base)/%(project)/venv
+module = %(project).wsgi:application
+
+logto = %(base)/%(project)/logs/cwm.log
+
+master = true
+processes = 5
+
+socket = %(base)/%(project)/%(project).sock
+chmod-socket = 777
+vacuum = true
+
+```
 启动
 ```
 uwsgi --emperor conf/xxx.ini
