@@ -78,6 +78,36 @@ JWT_AUTH = {
 
 `View`直接调用Snippet的各方法(`create`、 `update`等)
 
+对于没有保存到数据库的数据，当需要序列化对象时可以继承`Serializer`
+
+
+例如：
+
+```
+class ConfigureSerializer(Serializer):
+    root = BooleanField()
+    name = CharField(max_length=16)
+    visit_address = CharField(max_length=32)
+    higher_host = CharField(max_length=32, default='')
+
+    def create(self, validated_data):
+        raise ValidationError('Not Support create')
+
+    def update(self, instance, validated_data):
+        raise ValidationError('Not Support update')
+
+    def to_representation(self, instance):
+        return super(ConfigureSerializer, self).to_representation(instance)
+
+    def to_internal_value(self, data):
+        return {
+            'root': data.get('root'),
+            'name': data.get('name'),
+            'visit_address': data.get('visit_address'),
+            'higher_host': data.get('higher_host', ''),
+        }
+```
+
 ## 继承serializers.ModelSerializer
 
 [示例](https://www.django-rest-framework.org/tutorial/1-serialization/)
@@ -144,7 +174,7 @@ def to_internal_value(self, data):
     return value
 ```
 
-但是这样会有问题，如果是使用patch方式调用接口，可能并不含有所有字段，因此要加上默认值，可以从instance中获取当前值，创建的时候是没有instance的，所以加上判断
+但是这样会有问题，如果是使用patch方式调用接口，可能并不含有所有字段，因此要加上默认值，可以从instance中获取当前值，创建的时候是没有instance的，所以加上`if self.instance`判断
 ```
 def to_internal_value(self, data):
     value = super(ControlChannelSerializer, self).to_internal_value(data)
@@ -166,46 +196,6 @@ def to_internal_value(self, data):
         )
 
     return value
-```
-
-### 自定义create方法
-
-如果希望自定义创建字段的方法，比如希望通过设备地址创建设备的日志，可以自定义create，因为字段事先校验过，所以不用再校验，只需要通过`CharField`字段的address字段找到对应的device，然后新建一个字段实例返回。
-```
-def create(self, validated_data):
-    time = validated_data['time']
-    duration = validated_data['duration']
-    address = validated_data['device']['address']
-    try:
-        device = Device.objects.get(address=address)
-    except Device.DoesNotExist:
-        raise ValidationError({
-            'address': 'device address {} not exists'.format(address)
-        })
-    else:
-        return Record.objects.create(time=time, duration=duration, device=device)
-```
-
-通过自定义create方法完成特定的添加操作，比如调用`set_password`设置用户的密码，而不是直接赋值。
-```
-def create(self, validated_data):
-    user = User.objects.create(**validated_data)
-    user.set_password(validated_data['password'])
-    user.save()
-    return user
-```
-
-### 自定义修改时的字段校验
-
-如果希望校验用户修改的字段，比如不允许用户修改某一个字段，可以自定义update方法，先取出用户想要修改的值，因为用户可能使用的是PATCH方法，并不一定提交所有字段，因此使用字典的get方法。
-```
-def update(self, instance, validated_data):
-    satellite = validated_data.get('satellite', instance.satellite)
-    if satellite.id != instance.satellite.id:
-        raise ValidationError({
-            'satellite': 'can`t change satellite'
-        })
-    return super(BeamSerializer, self).update(instance, validated_data)
 ```
 
 # View
@@ -234,6 +224,42 @@ api_view函数接收一个序列参数，包含支持的方法，比如`GET`、`
 
 在路由中使用as_view()方法获得处理函数。
 
+针对没有数据库的接口，且提交的字段不定，通过继承`APIView`可以很方便的实现自定义的接口。
+
+比如实现一个代理
+
+```
+def _requests_request(method, url, *_, **kwargs):
+    """
+    发起HTTP请求
+    :param method: str 'get' 'post' and so on
+    :return: status, result
+    """
+    try:
+        res = requests.request(method, url, **kwargs)
+    except requests.exceptions.ConnectionError:
+        return HTTP_500_INTERNAL_SERVER_ERROR, '{} ConnectionError'.format(url)
+    try:
+        data = json.loads(res.content)
+    except json.decoder.JSONDecodeError:
+        data = res.text
+    return res.status_code, data
+
+class ApiGetViewMixin:
+    def get(self, request):
+        url = self._get_url()
+        status, result = _requests_request('get', url)
+        return Response(data=result, status=status)
+
+    def _get_url(self):
+        return None
+
+
+class UsingControlChannelView(ApiGetViewMixin, APIView):
+    def _get_url(self):
+        return _make_using_control_channel_url()
+```
+
 ## 继承 mixins 和 generics.GenericAPIView
 
 [示例](https://www.django-rest-framework.org/tutorial/3-class-based-views/)
@@ -241,6 +267,29 @@ api_view函数接收一个序列参数，包含支持的方法，比如`GET`、`
 设置`queryset`和`serializer_calss`属性
 
 定义`get`、`post`等方法，执行继承的`list`、`create`等行为，对serializer类绑定的model执行操作。
+
+针对没有数据库，但是请求的字段是固定的情况，可以继承`generics.GenericAPIView`
+
+例如:
+
+```
+class ConfigureView(generics.GenericAPIView):
+    """
+    分级管理器配置
+    """
+    serializer_class = ConfigureSerializer
+    permission_classes = [IsAdminOrReadOnly]
+
+    def get(self, request):
+        return do_proxy_get(LTL_CONFIGURE_URL)
+
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            return do_proxy_post(LTL_CONFIGURE_URL, serializer.data)
+        else:
+            return Response(data=serializer.errors, status=HTTP_400_BAD_REQUEST)
+```
 
 ## 继承特殊generics
 
@@ -252,103 +301,16 @@ api_view函数接收一个序列参数，包含支持的方法，比如`GET`、`
 
 也可以自定义`get`、`post`等方法。
 
-### 使用自定义方式获取数据并返回（代理）
-如果希望使用自定义的方式获取数据，比如使用代理的方式，从其他后端获取数据，可以使用GenericViewSet自定义ViewSet。
-首先自定义一个Serializer，定义简单的字段
-```
-class ConfigureSerializer(Serializer):
-    name = CharField(max_length=16)
-
-    def create(self, validated_data):
-        raise ValidationError('Not Support create')
-
-    def update(self, instance, validated_data):
-        raise ValidationError('Not Support update')
-
-    def to_representation(self, instance):
-        return super(ConfigureSerializer, self).to_representation(instance)
-
-    def to_internal_value(self, data):
-        return {
-            'name': data.get('name'),
-        }
-```
-然后定义ViewSet，自定义`list`等方法，使用代理的方式获取数据。
-```
-class ConfigureViewSet(GenericViewSet, mixins.ListModelMixin, mixins.CreateModelMixin):
-    """
-    分级管理器配置
-    """
-    serializer_class = ConfigureSerializer
-    ltl_url = '{}/{}'.format(LTL_URL_ROOT, CONFIGURE_URL)
-
-    def list(self, request, *args, **kwargs):
-        return do_proxy_get(self.ltl_url)
-
-    def create(self, request, *args, **kwargs):
-        serializer = ConfigureSerializer(data=request.data)
-        if serializer.is_valid():
-            return do_proxy_post(self.ltl_url, serializer.data)
-        else:
-            return Response(data=serializer.errors, status=HTTP_400_BAD_REQUEST)
-```
-如果用requets实现代理，像这样
-```
-def ltl_proxy(request, url, *args, **kwargs):
-    try:
-        res = request(url, *args, **kwargs)
-    except requests.exceptions.ConnectionError:
-        return Response(data='Can`t connect to LTL', status=HTTP_500_INTERNAL_SERVER_ERROR)
-    if res.status_code == 200:
-        instance = json.loads(res.text)
-        return Response(instance)
-    else:
-        return Response(status=res.status_code)
-
-
-def do_proxy_get(url):
-    return ltl_proxy(requests.get, url)
-
-
-def do_proxy_post(url, data):
-    return ltl_proxy(requests.post, url, data=data)
-```
-
 ## 继承 ViewSets
 
 [示例](https://www.django-rest-framework.org/tutorial/6-viewsets-and-routers/)
 
 继承ViewSets可以用来生成`list`、`post`、 `retrieve`等处理函数，或者使用Routers注册，会自动生成路由。
 
-### 自定义特殊方法
-
-通过使用`action`装饰器，定义特殊方法，`methods`参数指定支持的HTTP方法，`detail`指定是否是指定某列，`permission_classes`可以特殊指定这个方法的权限验证类。
-
-例如，定义一个action用于修改用户基本信息。
-```
-@action(methods=['POST'], detail=True, permission_classes=[IsAdminOrOwner, ])
-def profile(self, request, pk=None):
-    """
-    修改基本信息
-    """
-    serializer = ProfileSerializer(data=request.data)
-    if serializer.is_valid():
-        data = serializer.validated_data
-        user = self.get_object()
-        user.username = data['username']
-        user.save()
-        user_serializer = UserSerializer(user)
-        return Response(data=user_serializer.data, status=HTTP_200_OK)
-    return Response(data=serializer.data, status=HTTP_400_BAD_REQUEST)
-```
-如果使用reverse获取路由地址，需要指定名称和索引标识。
-```
-reverse('jwt-auth:user-profile', args=(user.id, ))
-```
-
 ### 自定义表的查询方式
 
 如果需要自定义表的查询方式，可以重写`get_queryset`方法，而不用指定`queryset`属性，但是如果使用router，需要在register时指定第三个参数`base_name`，一般为库名称的小写格式。
+
 
 ## 分页
 ### 使用游标
@@ -381,6 +343,161 @@ class MessageViewSet(CreateListRetrieveDestroyViewSet):
     serializer_class = MessageSerializer
     pagination_class = MessageStandardPagination
     permission_classes = [IsAuthenticated]
+```
+
+# 用户认证
+## model
+
+当需要在用户中添加其他额外字段时，需要使用`OneToOneField`建立一个新表。
+
+```
+class Info(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    phone_number = models.CharField(max_length=11, unique=True)
+    remark = models.CharField(max_length=32, default='', blank=True)
+
+    def __repr__(self):
+        return '<{}>'.format(str(self))
+
+    def __str__(self):
+        return 'Info({})'.format(self.user.username)
+```
+
+## serializer
+
+因为添加了新的字段，所以需要在创建用户时提供额外字段，同时也要建立一个新表的Serializer，为了方便验证。
+
+```
+class InfoSerializer(ModelSerializer):
+    class Meta:
+        model = Info
+        fields = '__all__'
+
+
+class UserSerializer(ModelSerializer):
+    phone_number = CharField(source='info.phone_number')
+    remark = CharField(source='info.remark', default='', allow_blank=True)
+
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'phone_number', 'is_staff', 'password', 'remark')
+        read_only_fields = ('devices', 'is_staff')
+
+    def to_representation(self, instance):
+        data = super(UserSerializer, self).to_representation(instance)
+        # 过滤掉password
+        del data['password']
+
+        return data
+
+    def to_internal_value(self, data):
+        value = super(UserSerializer, self).to_internal_value(data)
+        # 去掉info字段，后面单独处理
+        value['info'] = None
+        return value
+```
+
+## view
+
+当写View时，需要考虑两个表的新增和更新。
+
+```
+class UserViewSet(ModelViewSet):
+    """管理用户"""
+
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    def perform_create(self, serializer):
+        user = serializer.save()
+        request_data = self.request.data
+        user.set_password(request_data['password'])
+        request_data['user'] = user.id
+        info_serializer = InfoSerializer(data=request_data)
+        try:
+            info_serializer.is_valid(raise_exception=True)
+        except Exception as e:
+            user.delete()
+            raise e
+        info = info_serializer.save()
+        user.info = info
+        user.save()
+
+    def perform_update(self, serializer):
+        user = self.get_object()
+        request_data = self.request.data
+        info_serializer = InfoSerializer(user.info, data=request_data, partial=True)
+        info_serializer.is_valid(raise_exception=True)
+        info_serializer.save()
+        user = serializer.save()
+        if 'password' in request_data:
+            user.set_password(request_data['password'])
+            user.save()
+```
+
+可以把密码字段过滤掉，不再修改用户基本信息时修改。
+
+比如建立独立的serilaizer和view
+
+```
+class ChangePasswordSerializer(Serializer):
+    """修改密码"""
+
+    old_password = CharField(max_length=16)
+    new_password = CharField(max_length=16)
+
+    def to_internal_value(self, data):
+        old_password = data.get('old_password')
+        new_password = data.get('new_password')
+
+        return {
+            'old_password': old_password,
+            'new_password': new_password
+        }
+
+class UserChangePWD(GenericViewSet):
+    queryset = User.objects.all()
+    serializer_class = ChangePasswordSerializer
+
+    @action(methods=['POST'], detail=True)
+    def password(self, request, pk=None):
+        """
+        修改密码
+        """
+        serializer = ChangePasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            data = serializer.validated_data
+            user = self.get_object()
+            if request.user.id != user.id and not request.user.is_staff:
+                return Response(status=HTTP_403_FORBIDDEN)
+            if authenticate(username=user.username, password=data['old_password']) is not None:
+                user.set_password(data['new_password'])
+                user.save()
+                return Response(status=HTTP_204_NO_CONTENT)
+            return Response(
+                data={
+                    'old_password': 'password is invalid'
+                },
+                status=HTTP_400_BAD_REQUEST
+            )
+        return Response(data=serializer.errors, status=HTTP_400_BAD_REQUEST)
+```
+
+如果使用了cookie来存储JWT，可以新增删除cookie的登出操作
+
+```
+class LogoutView(APIView):
+    permission_classes = [AllowAny, ]
+
+    def post(self, request, *args, **kwargs):
+        response = Response(status=HTTP_204_NO_CONTENT)
+        response.delete_cookie('token')
+        return response
+
+urlpatterns = [
+    path('logout/', LogoutView.as_view(), name='jwt-auth-logout')
+]
+
 ```
 
 # 权限
