@@ -597,6 +597,46 @@ response = self.client.post(
 )
 ```
 
+# 国际化支持
+[文档](https://docs.djangoproject.com/en/2.1/topics/i18n/translation/)
+## 配置
+使用Django 的 `makemessages`命令时，需要在settings文件配置查找目录，这里为根目录下的`locale`目录。
+```
+LOCALE_PATHS = [
+    os.path.join(BASE_DIR, 'locale')
+]
+```
+## 使用
+```
+from django.utils.translation import ugettext_lazy as _
+
+class SomeView(ApiView):
+    def post(self, request):
+        raise ValidationError({
+            'freq': _('Not enough resources.')
+        })
+```
+
+## 生成`.po`文件
+```
+python manage.py makemessages -l zh_Hans
+```
+生成的文件格式形如
+```
+msgid "Not enough resources."
+msgstr ""
+```
+需要把对应语言的字符串写到msgstr
+```
+msgid "Not enough resources."
+msgstr "没有足够的资源。"
+```
+
+## 编译成`.mo`文件
+```
+python manage.py compilemessages
+```
+
 # 部署
 ## python环境
 项目文件拷贝到`/home/xxx`，切换到该目录。
