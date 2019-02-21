@@ -500,6 +500,90 @@ urlpatterns = [
 
 ```
 
+# Filters
+## 自定义filter backend
+自定义filter backend需要继承`rest_framework.filters.BaseFilterBackend`，重写`filter_queryset`，返回queryset
+
+例如根据时间范围过滤日志
+```
+from rest_framework.filters import BaseFilterBackend
+from rest_framework import compat
+
+class TimeFilterBackend(BaseFilterBackend):
+    """
+    根据时间过滤
+
+    time_filter_fields = ('time', )
+    time_filter_fields = ('start_time', 'time')
+    """
+    @staticmethod
+    def _make_query_params(filters, begin, end):
+        """
+        time_filter_fields = ('time', ) => {'time__gte': begin, 'time__lte': end}
+        time_filter_fields = ('start_time', 'time') => {'start_time__gte': begin, 'time__lte': end}
+
+        如果begin和end为None，则缺省该字段
+        """
+        result = {}
+        if not filters:
+            return result
+
+        if len(filters) == 1:
+            time = filters[0]
+            if begin:
+                result.update({'{}__gte'.format(time): begin})
+            if end:
+                result.update({'{}__lte'.format(time): end})
+        else:
+            start_time, end_time, *_others = filters
+            if begin:
+                result.update({'{}__gte'.format(start_time): begin})
+            if end:
+                result.update({'{}__lte'.format(end_time): end})
+
+        return result
+
+    def filter_queryset(self, request, queryset, view):
+        time_filter_fields = getattr(view, 'time_filter_fields', None)
+        if not time_filter_fields:
+            return queryset
+
+        begin, end = get_begin_end_from_request(request)
+        query_params = self._make_query_params(time_filter_fields, begin, end)
+        return queryset.filter(**query_params)
+
+    def get_schema_fields(self, view):
+        return [
+            compat.coreapi.Field(
+                name='begin',
+                required=False,
+                location='query',
+                schema=compat.coreschema.String(description='')
+            ),
+            compat.coreapi.Field(
+                name='end',
+                required=False,
+                location='query',
+                schema=compat.coreschema.String(description='')
+            )
+        ]
+```
+
+使用方法
+```
+class CULogViewSet(ModelViewSet):
+    queryset = CULog.objects.all()
+    serializer_class = CULogSerializer
+    filter_backends = (TimeFilterBackend, )
+    time_filter_fields = ('time', )
+```
+
+`_make_query_params`是自定义方法，根据查询字段`begin`和`end`以及从view中获取的`time_filter_fields`生成查询条件
+
+`filter_queryset`使用查询条件查询并返回query_set
+
+`get_schema_fields`用于api docs接口显示，这里固定是`begin`和`end`字段。
+
 # 权限
 ## 登录路由
 
@@ -698,6 +782,27 @@ create database xxx default charset = "utf8mb4";
 将静态文件拷贝到`/usr/share/nginx/`;
 
 ## nginx
+配置文件`nginx.conf`
+```
+upstream django {
+    server unix:/home/admin/cwm/cwm.sock;
+}
+
+server {
+    server_name localhost;
+
+    location ~ ^/api/cwm {
+        uwsgi_pass django;
+        include uwsgi_params;
+    }
+
+    location / {
+        root cwm;
+        index index.html;
+    }
+}
+```
+
 将配置文件`nginx.conf`拷贝到`/etc/nginx/site-enabled/`;
 ```
 sudo servcice nginx restart
