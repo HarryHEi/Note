@@ -153,7 +153,6 @@ tornado.ioloop.IOLoop.current().start()
 
 python3.5 添加了`async`和`await`关键字，多数`yield`关键字的地方可以换成`await`关键字。
 ```
-@asyncio.coroutine
 async def fetch_url():
     client = tornado.httpclient.AsyncHTTPClient()
     response = await client.fetch('https://www.baidu.com')
@@ -167,7 +166,6 @@ loop.run_until_complete(fetch_url())
 
 多个协程
 ```
-@asyncio.coroutine
 async def fetch_urls():
     client = tornado.httpclient.AsyncHTTPClient()
     response = await asyncio.wait([
