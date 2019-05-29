@@ -174,7 +174,15 @@ C/C++ -> 常规 -> 附加包含目录:
 `%(AdditionalIncludeDirectories)`
 
 链接器 -> 常规 -> 附加库目录：
-D:\gstreamer\1.0\x86_64\lib;
+shell32.lib
+ws2_32.lib
+glib-2.0.lib
+gobject-2.0.lib
+gstapp-1.0.lib
+gstaudio-1.0.lib
+gstreamer-1.0.lib
+gstvideo-1.0.lib
+vo-aacenc.lib
 %(AdditionalLibraryDirectories)
 
 也可以将所有的lib文件添加到资源管理
