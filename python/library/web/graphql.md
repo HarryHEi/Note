@@ -60,12 +60,12 @@ class DeptNode(DjangoObjectType):
 
     @staticmethod
     def resolve_company_name(parent, info):
-        # info.context其实就是request，company_loader和info.context绑定
+        request = info.context
         if not hasattr(info.context, 'company_name_loader'):
             company_name_loader = CompanyNameLoader()
-            setattr(info.context, 'company_name_loader', company_name_loader)
+            request.company_name_loader = company_name_loader
         else:
-            company_name_loader = getattr(info.context, 'company_name_loader')
+            company_name_loader = request.company_name_loader
 
         return company_name_loader.load(key=parent.company_id)
 ```
