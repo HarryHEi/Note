@@ -79,6 +79,51 @@ class Query:
     all_dept = DjangoFilterConnectionField(DeptNode)
 ```
 
+同样的，查询`Company`列表需要包含`Dept`信息时，也需要通过`DataLoader`避免多次查询。
+
+和之前类似，也是可以缓存需要查询的`company_id`，不同的是，每个`company`可以有多个或者0个`dept`，这时需要返回`dept`列表的列表，形如`[[], [dept_1, dept_2], ...]`
+
+定义`CompanyDeptLoader`，遍历查询结果，利用`defaultdict`快速构建映射，然后按照`keys`的顺序构建返回`dept`列表
+```
+class CompanyDeptLoader(DataLoader):
+    @staticmethod
+    def batch_load_fn(keys):
+        company_to_dept = defaultdict(list)
+
+        for dept in Dept.objects.filter(company__in=keys):
+            company_to_dept[dept.company_id].append(dept)
+
+        return Promise.resolve([company_to_dept.get(key, []) for key in keys])
+```
+
+使用方法相同
+```
+class CompanyNode(DjangoObjectType):
+    class Meta:
+        model = Company
+        filter_fields = ['id', 'name']
+        interfaces = (relay.Node, )
+        connection_class = CompanyConnection
+
+    @staticmethod
+    def resolve_dept(parent, info):
+        request = info.context
+        if not hasattr(info.context, 'company_dept_loader'):
+            company_dept_loader = CompanyDeptLoader()
+            request.company_dept_loader = company_dept_loader
+        else:
+            company_dept_loader = request.company_dept_loader
+
+        return company_dept_loader.load(parent.id)
+```
+
+放到`Query`中
+```
+class Query:
+    company = relay.Node.Field(CompanyNode)
+    all_company = DjangoFilterConnectionField(CompanyNode)
+```
+
 # 分页和筛选
 [relay](https://docs.graphene-python.org/projects/django/en/latest/queries/#relay)用于处理分页和分片，[django-filter](https://docs.graphene-python.org/projects/django/en/latest/tutorial-relay/#schema)处理筛选，[配合使用](https://github.com/graphql-python/graphene-django/issues/636)处理筛选和分页。
 
