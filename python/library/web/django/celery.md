@@ -33,7 +33,7 @@ from .celery import app as celery_app
 __all__ = ('celery_app',)
 ```
 
-在`setting.py`指定一些参数
+在`setting.py`指定一些参数，[更多参数](http://docs.celeryproject.org/en/latest/userguide/configuration.html)
 ```
 CELERY_BROKER_URL = 'redis://192.168.0.201:6379/0'
 CELERY_ACCEPT_CONTENT = ['json']
