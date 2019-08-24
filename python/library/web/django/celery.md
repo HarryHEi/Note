@@ -11,15 +11,22 @@ tags: [django]
 以前版本的Celery需要一个单独的库(django-celery)来和Djnago协同工作，新版本的[Celery](http://docs.celeryproject.org/en/latest/django/first-steps-with-django.html)可以直接在Django项目中使用。
 
 ## 一些准备工作
-在`proj/proj/celery.py`文件中创建celery实例。
+安装`celery`
+
+```
+pip install celery
+```
+
+在`dj_demo/dj_demo/celery.py`文件中创建celery实例。
+
 ```
 from __future__ import absolute_import, unicode_literals
 import os
 from celery import Celery
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'djgraph.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'dj_demo.settings')
 
-app = Celery('djgraph')
+app = Celery('dj_demo')
 app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks()
 ```
@@ -35,16 +42,25 @@ __all__ = ('celery_app',)
 
 在`setting.py`指定一些参数，[更多参数](http://docs.celeryproject.org/en/latest/userguide/configuration.html)
 ```
-CELERY_BROKER_URL = 'redis://192.168.0.201:6379/0'
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_BACKEND = 'redis://192.168.0.201:6379/1'
+CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379/1'
+CELERY_TIMEZONE = 'Asia/Shanghai'
+```
+
+这里使用`redis`作为`broker`，所以需要安装`redis`依赖
+
+```
+pip install redis
 ```
 
 ## 创建一些任务
+
 `Celery`会自动从app的`tasks.py`中寻找任务，只需要在`app/tasks.py`中用`shared_task`装饰器标记任务即可。
 ```
 from celery import shared_task
+
 
 @shared_task
 def add(x, y):
@@ -56,33 +72,45 @@ def add(x, y):
 ```
 CELERY_BEAT_SCHEDULE = {
     'test': {
-        'task': 'kanna.tasks.my_job',
+        'task': 'demo.tasks.add',
         'schedule': 5,
-        'args': ()
+        'args': (1, 2)
     }
 }
-```
-
-## 启动
-启动`worker`进程
-linux:
-```
-celery -A proj worker -l info
-```
-windows:
-```
-celery -A proj worker --pool=solo -l info
-```
-启动`beat`服务，windows和linux相同
-```
-celery -A proj beat -l info
 ```
 
 # Django Celery beat
 [django-celery-beat](https://django-celery-beat.readthedocs.io/en/latest/index.html)扩展可以使用数据库管理定时任务。
 
-## 创建一个定时任务
-创建一个定时任务需要给出`schedule`和`task`。
+安装依赖
+
+```
+pip install django_celery_beat
+```
+
+配置`INSTALLED_APPS`
+
+```
+INSTALLED_APPS = [
+	# ...
+    'django_celery_beat',
+]
+```
+
+数据库迁移
+
+```
+python manage.py migrate
+```
+
+配置`DatabaseScheduler`
+
+```
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+```
+
+## 动态创建定时任务
+创建定时任务需要给出`schedule`和`task`。
 
 `schedule`可以是`SolarSchedule`(日出、日落等太阳相关时间)、`ClockedSchedule`(一个精确的日期)、`IntervalSchedule`(固定间隔时间)、`CrontabSchedule`(crontab定时)。
 
@@ -106,7 +134,7 @@ PeriodicTask.objects.create(
 ## 启动
 启动beat服务
 ```
-celery -A proj beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
+celery -A dj_demo beat -l info
 ```
 启动`worker`进程
 windows:

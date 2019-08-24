@@ -15,6 +15,7 @@ XSS利用的是用户对指定网站的信任。
 当Web服务器采用token的验证方式时，如果将token保存在HTML5 Web Storage (localStorage or sessionStorage)，任何在该网站运行的JS脚本都可以获得该token，如果网站遭受XSS攻击，用户token将会泄露。
 
 ## 防范措施
+### 过滤用户输入
 通过对用户的输入进行过滤。
 
 ```
@@ -29,6 +30,10 @@ XSS利用的是用户对指定网站的信任。
 <img src="http://888.888.com/999.png" onerror="alert('XSS')">
 <div style="height:expression(alert('XSS'),1)"></div>（这个仅于IE7(含)之前有效）
 ```
+
+### 注意Token存放位置
+[where to store jwts](https://stormpath.com/blog/where-to-store-your-jwts-cookies-vs-html5-web-storage)
+Token建议存放在cookie中，因为cookie提供了额外的安全性，HTML5 Web存储容易遭受攻击泄露。
 
 # CSRF
 
