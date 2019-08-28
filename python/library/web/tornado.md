@@ -6,7 +6,10 @@ tags: [python]
 
 tornado是一个异步web框架，并且也提供http服务。
 
+### 一个简单示例
+
 定义一个`RequestHandler`，tornadot提供简单的web异步框架
+
 ```
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
@@ -149,7 +152,7 @@ tornado.ioloop.IOLoop.current().spawn_callback(handle_loop)
 tornado.ioloop.IOLoop.current().start()
 ```
 
-使用asyncio事件循环
+### asyncio
 
 python3.5 添加了`async`和`await`关键字，多数`yield`关键字的地方可以换成`await`关键字。
 ```
@@ -179,3 +182,41 @@ loop = asyncio.get_event_loop()
 loop.create_task(fetch_urls())
 loop.run_until_complete(fetch_urls())
 ```
+
+### 静态文件
+
+Tornado可以服务静态文件，一般只会在Debug时采用，正式部署时静态文件需要放在Web服务器下面。
+
+```
+from aiopyrestful.rest import RestService
+from tornado.web import StaticFileHandler
+
+BASE_DIR = os.path.dirname(__file__)
+DEBUG_HTML_PATH = os.path.join(BASE_DIR, 'html')
+DEBUG_HTML_INDEX = 'index.html'
+REST_SETTING = {
+    'cookie_secret': '....',
+    'debug': True
+}
+
+rest_handlers = [
+    #...
+    # 这里放上REST服务Handler
+]
+
+handlers = [
+	#...
+	# 这里放上URL和Tornado Handler
+    # (r'/api/manager/ws/', WSHandler),
+]
+
+if REST_SETTING['debug']:
+    handlers.append((r'/(.*)', StaticFileHandler, dict(path=DEBUG_HTML_PATH, default_filename=DEBUG_HTML_INDEX)))
+
+application = RestService(
+    rest_handlers=rest_handlers,
+    handlers=handlers,
+    **REST_SETTING
+)
+```
+
