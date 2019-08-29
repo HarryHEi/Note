@@ -10,21 +10,22 @@ tags: [django]
 
 # 安装
 
+```
+pip install djangorestframework
+```
+
+
+
 在安装Mysql支持的`mysql-client`时，windows需要使用`whl`文件安装，[地址](https://www.lfd.uci.edu/~gohlke/pythonlibs/)
 
 # 配置
 
 ```
 INSTALLED_APPS = [
-    ...
+    # ...
     'rest_framework',
-    'rest_framework.authtoken',
-    'djoser',
-    'communications.apps.CommunicationsConfig',
-    'users.apps.UsersConfig',
-    'groups.apps.GroupsConfig',
-    'prices.apps.PricesConfig',
-    'api_auth.apps.ApiAuthConfig',
+    'rest_framework.authtoken',  # token相关
+    # ...
 ]
 ```
 
