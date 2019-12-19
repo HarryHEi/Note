@@ -138,10 +138,11 @@ celery -A dj_demo beat -l info
 ```
 启动`worker`进程
 windows:
+
 ```
-celery -A djgraph worker --pool=solo -l info
+celery -A dj_demo worker --pool=solo -l info
 ```
 linux:
 ```
-celery -A djgraph worker -l info
+celery -A dj_demo worker -l info
 ```
