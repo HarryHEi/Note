@@ -510,6 +510,26 @@ urlpatterns = [
 from rest_framework.filters import BaseFilterBackend
 from rest_framework import compat
 
+
+def get_begin_end_from_request(request):
+    """
+    从request获取begin、end查询字段
+    :param request:
+    :return: (begin, end)
+    """
+    begin = request.query_params.get('begin', None)
+    end = request.query_params.get('end', None)
+
+    tz = timezone.get_current_timezone()
+    begin_datetime = tz.localize(parse_datetime(begin), is_dst=None) if begin else None
+    end_datetime = tz.localize(parse_datetime(end), is_dst=None) if end else None
+
+    if begin_datetime and end_datetime and begin_datetime >= end_datetime:
+        raise ValidationError(_('The termination time must be greater than the start time.'))
+
+    return begin_datetime, end_datetime
+
+
 class TimeFilterBackend(BaseFilterBackend):
     """
     根据时间过滤
