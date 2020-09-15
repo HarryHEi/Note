@@ -190,6 +190,16 @@ $ git push origin master
 Everything up-to-date
 ```
 
+# git credential
+
+保存认证信息到本地磁盘，避免重复输入用户名密码。
+
+```
+git config --global credential.helper store
+```
+
+<https://git-scm.com/docs/gitcredentials/en>
+
 # 参考资料
 <http://blog.csdn.net/ithomer/article/details/7529022>
 <https://www.youtube.com/watch?v=cEGIFZDyszA&index=1&list=PL6gx4Cwl9DGAKWClAD_iKpNC0bGHxGhcx>
