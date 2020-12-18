@@ -28,3 +28,48 @@ Tips: `shlex.split()`可用于分解命令行
 ['/bin/vikings', '-input', 'eggs.txt', '-output', 'spam spam.txt', '-cmd', "echo '$MONEY'"]
 >>> p = subprocess.Popen(args) # Success!
 ```
+
+`stdin`、`stdout`和`stderr`可以指定为以下值：
+
++ `PIPE`：创建到子进程的管道，通过`proc.stdin`、`proc.stdout`和`proc.stderr`进行流操作。
+
+  ```
+  >>> proc=subprocess.Popen(["python3"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+  >>> proc.stdin.write(b'print("123")')
+  12
+  >>> proc.stdin.close()  # 必要的
+  >>> proc.stdout.read()
+  b'123\n'
+  >>> proc.kill()
+  >>> proc.wait()  # 必要的，否则proc会成为僵尸进程
+  0
+  ```
+
++ `DEVNULL`：相当于写入到`os.devnull`，`/dev/null` for POSIX, `nul` for Windows。
++ `None`：默认，集成父进程的文件标识。
+
+`stderr`可以配置成`STDOUT`，与`stdout`共享文件句柄。
+
+```
+>>> proc=subprocess.Popen(["ls", "/opt/asd"], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+>>> proc.stdout.read()
+b"ls: cannot access '/opt/asd': No such file or directory\n"
+>>> proc.stderr == None
+True
+```
+
+使用`os.kill`通过`PID`杀掉`proc`
+
+```
+>>> import os
+>>> import signal
+>>> os.kill(proc.pid, signal.SIGKILL)
+>>> proc.wait()
+```
+
+`shell=True`指定使用`/bin/sh`运行命令，相当于：
+
+```
+Popen(['/bin/sh', '-c', args[0], args[1], ...])
+```
+
