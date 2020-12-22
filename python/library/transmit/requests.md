@@ -21,7 +21,7 @@ from StringIO import StringIO
 r =requests.get("http://119.29.137.50")
 print r.text #打印内容
 
-r =requests.get("http://7xrooc.com1.z0.glb.clouddn.com/avatar.jpg")
+r =requests.get("http://7n.byherui.com/avatar.jpg")
 i = Image.open(StringIO(r.content)).save("temp.jpg","JPEG") #数据流形式打开并保存
 ```
 ## json

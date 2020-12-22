@@ -6,7 +6,7 @@ tags: [acg]
 
 最近跟小伙伴沉迷饥荒，一起吃饭睡觉打豆豆，各种作死。在玩过基本人物之后并不过瘾，装了一堆mod，愣是把生存游戏完成了RPG。
 
-![](http://7xrooc.com1.z0.glb.clouddn.com/20170215231734_1.jpg)
+![](http://7n.byherui.com/20170215231734_1.jpg)
 
 “你怎么死了？”
 
@@ -27,6 +27,6 @@ tags: [acg]
 
 厉害了我的精灵公主。
 
-![](http://7xrooc.com1.z0.glb.clouddn.com/20170318233130_1.jpg)
+![](http://7n.byherui.com/20170318233130_1.jpg)
 
-![](http://7xrooc.com1.z0.glb.clouddn.com/QQ%E6%88%AA%E5%9B%BE20170319184341.png)
+![](http://7n.byherui.com/QQ%E6%88%AA%E5%9B%BE20170319184341.png)

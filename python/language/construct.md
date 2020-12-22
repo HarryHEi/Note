@@ -257,7 +257,7 @@ print t
 
 在前面使用不同符号表示字节不同的位排序
 
-![](http://7xrooc.com1.z0.glb.clouddn.com/QQ%E6%88%AA%E5%9B%BE20170406102515.png)
+![](http://7n.byherui.com/QQ%E6%88%AA%E5%9B%BE20170406102515.png)
 
 如果第一个字符不是当中的任何一个，自动添加一个`@`，启动本机序本机序是大端或者小端，取决于本机系统
 
@@ -267,7 +267,7 @@ print t
 
 各类型
 
-![](http://7xrooc.com1.z0.glb.clouddn.com/QQ%E6%88%AA%E5%9B%BE20170406101144.png)
+![](http://7n.byherui.com/QQ%E6%88%AA%E5%9B%BE20170406101144.png)
 
 [文档](https://docs.python.org/2/library/struct.html)
 [参考](http://www.cnblogs.com/coser/archive/2011/12/17/2291160.html)

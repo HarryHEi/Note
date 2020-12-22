@@ -67,4 +67,4 @@ print "hello world!"
 ```
 <img src="http://somepic.cn" />
 ```
-<center><img src="http://7xrooc.com1.z0.glb.clouddn.com/IMG_1072.PNG" /></center>>
+<center><img src="http://7n.byherui.com/IMG_1072.PNG" /></center>>

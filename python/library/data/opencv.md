@@ -167,7 +167,7 @@ erosion = cv2.erode(img, kernel, iterations = 1)
 
 cv2.imwrite("j2.png",erosion)
 ```
-<img src="http://7xrooc.com1.z0.glb.clouddn.com/ercode.png">
+<img src="http://7n.byherui.com/ercode.png">
 
 ### cv2.dilate
 膨胀图像
@@ -194,7 +194,7 @@ opening = cv2.morphologyEx(img, cv2.MORPH_OPEN,kernel)
 
 cv2.imwrite("j3.png",opening)
 ```
-<img src="http://7xrooc.com1.z0.glb.clouddn.com/salt-open.png">
+<img src="http://7n.byherui.com/salt-open.png">
 
 ### closeing
 闭运算
@@ -298,7 +298,7 @@ cv2.waitKey(0)
 cv2.destroyAllWindows()
 ```
 左是处理后的图像，右是原图像
-<img src="http://7xrooc.com1.z0.glb.clouddn.com/blur.png">
+<img src="http://7n.byherui.com/blur.png">
 **boxfilter**
 同样也是滤波，效果相同
 第二个参数-1指的是图像深度由输入图像决定
