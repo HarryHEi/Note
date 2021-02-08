@@ -1,0 +1,30 @@
+---
+title: echarts
+date: 2019-11-2 18:05:12
+tags: [monitor]
+---
+
+## 官方文档
+
+[echarts](https://echarts.apache.org/zh/index.html)
+
+## 使用百度地图
+
+Echarts内置百度地图的js文件，可以直接使用`import"echarts/extension/bmap/bmap.js";` 引入。
+
+使用百度地图需要设置key：
+
+```
+<script type="text/javascript"src="http://api.map.baidu.com/api?v=3.0&ak=KOmVjPVUAey1G2E8zNhPiuQ6QiEmAwZu"></script>
+```
+
+隐藏logo
+
+```
+<style type="text/css">
+    .anchorBL{
+        display:none
+    }
+</style>
+```
+
