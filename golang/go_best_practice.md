@@ -1,5 +1,5 @@
 ---
-title: micro
+title: go best practice
 date: 2021-4-23 15:21:00
 tags: [golang]
 
